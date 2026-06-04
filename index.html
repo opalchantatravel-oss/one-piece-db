@@ -270,8 +270,16 @@ let charPage=1, fruitPage=1, curLayout='grid';
 const PER=24;
 
 async function api(path){
-  const r=await fetch(URL+path,{headers:{apikey:KEY,Authorization:"Bearer "+KEY,"Range":"0-2000"}});
+  const r=await fetch(URL+path,{headers:{apikey:KEY,Authorization:"Bearer "+KEY}});
   return r.json();
+}
+
+async function apiChars(){
+  const [batch1, batch2]=await Promise.all([
+    fetch(URL+"/rest/v1/characters?select=id,name,status,origin,faction_id,devil_fruit_id,alias,haki_types,bounty,height,blood_type&limit=1000&offset=0",{headers:{apikey:KEY,Authorization:"Bearer "+KEY}}).then(r=>r.json()),
+    fetch(URL+"/rest/v1/characters?select=id,name,status,origin,faction_id,devil_fruit_id,alias,haki_types,bounty,height,blood_type&limit=1000&offset=1000",{headers:{apikey:KEY,Authorization:"Bearer "+KEY}}).then(r=>r.json()),
+  ]);
+  return [...(Array.isArray(batch1)?batch1:[]), ...(Array.isArray(batch2)?batch2:[])];
 }
 
 function wikiImg(name){
@@ -281,7 +289,7 @@ function wikiImg(name){
 
 async function loadAll(){
   const [chars,fruits,factions,arcs]=await Promise.all([
-    api("/rest/v1/characters?select=id,name,status,origin,faction_id,devil_fruit_id,alias,haki_types,bounty,height,blood_type&limit=2000"),
+    apiChars(),
     api("/rest/v1/devil_fruits?select=id,name,type,awakened&limit=500"),
     api("/rest/v1/factions?select=id,name,type&limit=1000"),
     api("/rest/v1/arcs?select=name,saga,arc_number,chapters_start,episodes_start&order=arc_number.asc&limit=100"),
