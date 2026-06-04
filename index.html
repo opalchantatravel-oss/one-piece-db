@@ -57,8 +57,8 @@ body{background:var(--bg);color:var(--text);font-family:'Crimson Pro',Georgia,se
 .card-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:16px;}
 .char-card{background:var(--surface2);border:1px solid var(--border);border-radius:6px;overflow:hidden;cursor:pointer;transition:all .2s;position:relative;}
 .char-card:hover{border-color:var(--gold-dim);transform:translateY(-2px);}
-.card-img{width:100%;aspect-ratio:3/4;object-fit:cover;object-position:top;background:var(--surface3);display:block;}
-.card-img-placeholder{width:100%;aspect-ratio:3/4;background:var(--surface3);display:flex;align-items:center;justify-content:center;font-size:36px;color:var(--text-muted);}
+.card-avatar{width:100%;aspect-ratio:3/4;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:8px;}
+.card-avatar-init{font-family:'Cinzel',serif;font-weight:700;font-size:28px;line-height:1;}
 .card-body{padding:10px 12px;}
 .card-name{font-size:13px;font-weight:600;color:var(--text);line-height:1.3;margin-bottom:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .card-badges{display:flex;flex-wrap:wrap;gap:4px;}
@@ -67,8 +67,8 @@ body{background:var(--bg);color:var(--text);font-family:'Crimson Pro',Georgia,se
 .list-layout{display:flex;flex-direction:column;gap:10px;}
 .list-item{background:var(--surface2);border:1px solid var(--border);border-radius:6px;display:flex;align-items:center;gap:14px;padding:10px 14px;cursor:pointer;transition:all .2s;}
 .list-item:hover{border-color:var(--gold-dim);}
-.list-img{width:48px;height:60px;object-fit:cover;object-position:top;border-radius:3px;background:var(--surface3);flex-shrink:0;}
-.list-img-placeholder{width:48px;height:60px;background:var(--surface3);border-radius:3px;display:flex;align-items:center;justify-content:center;font-size:20px;color:var(--text-muted);flex-shrink:0;}
+.list-avatar{width:48px;height:60px;border-radius:3px;flex-shrink:0;display:flex;align-items:center;justify-content:center;}
+.list-avatar-init{font-family:'Cinzel',serif;font-weight:700;font-size:15px;line-height:1;}
 .list-info{flex:1;min-width:0;}
 .list-name{font-size:15px;font-weight:600;color:var(--text);margin-bottom:5px;}
 .list-meta{font-size:13px;color:var(--text-dim);}
@@ -98,8 +98,8 @@ body{background:var(--bg);color:var(--text);font-family:'Crimson Pro',Georgia,se
 .modal-close{position:sticky;top:0;float:right;background:var(--surface2);border:1px solid var(--border);color:var(--text-dim);width:32px;height:32px;border-radius:50%;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;margin:12px 12px 0 0;z-index:2;transition:all .2s;}
 .modal-close:hover{border-color:var(--gold-dim);color:var(--gold);}
 .modal-header{display:flex;gap:1.2rem;padding:1.5rem;border-bottom:1px solid var(--border);}
-.modal-img{width:100px;height:130px;object-fit:cover;object-position:top;border-radius:4px;background:var(--surface3);flex-shrink:0;}
-.modal-img-placeholder{width:100px;height:130px;background:var(--surface3);border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:48px;color:var(--text-muted);flex-shrink:0;}
+.modal-avatar{width:100px;height:130px;border-radius:4px;flex-shrink:0;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:6px;}
+.modal-avatar-init{font-family:'Cinzel',serif;font-weight:700;font-size:36px;line-height:1;}
 .modal-title{font-family:'Cinzel',serif;font-size:20px;font-weight:600;color:var(--gold);margin-bottom:8px;}
 .modal-subtitle{font-size:13px;color:var(--text-dim);margin-bottom:10px;font-style:italic;}
 .modal-body{padding:1.2rem 1.5rem 1.5rem;}
@@ -261,7 +261,7 @@ function wikiImg(name){
 
 async function loadAll(){
   const [chars,fruits,factions,arcs]=await Promise.all([
-    api("/rest/v1/characters?select=id,name,status,origin,faction_id,devil_fruit_id,alias,haki_types&limit=2000"),
+    api("/rest/v1/characters?select=id,name,status,origin,faction_id,devil_fruit_id,alias,haki_types,bounty,height,blood_type&limit=2000"),
     api("/rest/v1/devil_fruits?select=id,name,type,awakened&limit=500"),
     api("/rest/v1/factions?select=id,name,type&limit=1000"),
     api("/rest/v1/arcs?select=name,saga,arc_number,chapters_start,episodes_start&order=arc_number.asc&limit=100"),
@@ -291,9 +291,16 @@ function fbadge(t){
   return `<span class="badge ${m[t]||'b-unknown'}">${t}</span>`;
 }
 
-function imgEl(name,cls,ph){
-  const wiki=`https://onepiece.fandom.com/wiki/Special:FilePath/${encodeURIComponent(name.replace(/ /g,'_'))}.png`;
-  return `<img src="${wiki}" class="${cls}" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'" loading="lazy"><div class="${ph}" style="display:none">☠</div>`;
+function initials(name){
+  const p=name.trim().split(/\s+/);
+  if(p.length===1)return p[0].slice(0,2).toUpperCase();
+  return (p[0][0]+(p[p.length-1][0])).toUpperCase();
+}
+function avatarEl(name,type){
+  const init=initials(name);
+  if(type==='card') return `<div class="card-avatar"><span class="card-avatar-init">${init}</span></div>`;
+  if(type==='list') return `<div class="list-avatar"><span class="list-avatar-init">${init}</span></div>`;
+  if(type==='modal') return `<div class="modal-avatar"><span class="modal-avatar-init">${init}</span></div>`;
 }
 
 function getFC(){
@@ -316,7 +323,7 @@ function renderChars(){
       const fn=factionMap[c.faction_id]?.name||"";
       const df=fruitMap[c.devil_fruit_id];
       return `<div class="char-card" onclick="openModal(${JSON.stringify(c).replace(/"/g,'&quot;')})">
-        ${imgEl(c.name,'card-img','card-img-placeholder')}
+        ${avatarEl(c.name,'card')}
         <div class="card-body">
           <div class="card-name" title="${c.name}">${c.name}</div>
           <div class="card-badges">
@@ -331,7 +338,7 @@ function renderChars(){
       const fn=factionMap[c.faction_id]?.name||"—";
       const df=fruitMap[c.devil_fruit_id];
       return `<div class="list-item" onclick="openModal(${JSON.stringify(c).replace(/"/g,'&quot;')})">
-        ${imgEl(c.name,'list-img','list-img-placeholder')}
+        ${avatarEl(c.name,'list')}
         <div class="list-info">
           <div class="list-name">${c.name}</div>
           <div class="list-meta">${fn}${c.origin?' · '+c.origin:''}</div>
@@ -355,7 +362,7 @@ function openModal(c){
 
   document.getElementById('modal-content').innerHTML=`
     <div class="modal-header">
-      ${imgEl(c.name,'modal-img','modal-img-placeholder')}
+      ${avatarEl(c.name,'modal')}
       <div>
         <div class="modal-title">${c.name}</div>
         <div class="modal-subtitle">${aliases!=="—"?aliases:''}</div>
@@ -369,6 +376,9 @@ function openModal(c){
       <div class="modal-row"><div class="modal-key">Faction</div><div class="modal-val">${fn}</div></div>
       <div class="modal-row"><div class="modal-key">Origin</div><div class="modal-val">${c.origin||"—"}</div></div>
       <div class="modal-row"><div class="modal-key">Devil Fruit</div><div class="modal-val">${df?df.name+" ("+df.type+")":"—"}</div></div>
+      <div class="modal-row"><div class="modal-key">Bounty</div><div class="modal-val">${c.bounty?'฿'+Number(c.bounty).toLocaleString():"—"}</div></div>
+      <div class="modal-row"><div class="modal-key">Height</div><div class="modal-val">${c.height?c.height+' cm':"—"}</div></div>
+      <div class="modal-row"><div class="modal-key">Blood Type</div><div class="modal-val">${c.blood_type||"—"}</div></div>
       <div class="modal-row"><div class="modal-key">Haki</div><div class="modal-val">${haki}</div></div>
       <div class="modal-row"><div class="modal-key">Aliases</div><div class="modal-val">${aliases}</div></div>
     </div>`;
