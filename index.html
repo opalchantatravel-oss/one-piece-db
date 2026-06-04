@@ -291,16 +291,10 @@ function fbadge(t){
   return `<span class="badge ${m[t]||'b-unknown'}">${t}</span>`;
 }
 
-function initials(name){
-  const p=name.trim().split(/\s+/);
-  if(p.length===1)return p[0].slice(0,2).toUpperCase();
-  return (p[0][0]+(p[p.length-1][0])).toUpperCase();
-}
 function avatarEl(name,type){
-  const init=initials(name);
-  if(type==='card') return `<div class="card-avatar"><span class="card-avatar-init">${init}</span></div>`;
-  if(type==='list') return `<div class="list-avatar"><span class="list-avatar-init">${init}</span></div>`;
-  if(type==='modal') return `<div class="modal-avatar"><span class="modal-avatar-init">${init}</span></div>`;
+  if(type==='card') return `<div class="card-avatar"><span class="card-avatar-init">☠</span></div>`;
+  if(type==='list') return `<div class="list-avatar"><span class="list-avatar-init">☠</span></div>`;
+  if(type==='modal') return `<div class="modal-avatar"><span class="modal-avatar-init">☠</span></div>`;
 }
 
 function getFC(){
