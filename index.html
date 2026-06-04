@@ -461,16 +461,16 @@ function renderStats(){
 }
 
 const STRAW_HATS = [
-  {name:"Monkey D. Luffy",   role:"Captain",       emoji:"👒"},
-  {name:"Roronoa Zoro",      role:"Swordsman",     emoji:"⚔️"},
-  {name:"Nami",              role:"Navigator",     emoji:"🗺️"},
-  {name:"Usopp",             role:"Sniper",        emoji:"🎯"},
-  {name:"Sanji",             role:"Cook",          emoji:"🍳"},
-  {name:"Tony Tony Chopper", role:"Doctor",        emoji:"🦌"},
-  {name:"Nico Robin",        role:"Archaeologist", emoji:"📖"},
-  {name:"Franky",            role:"Shipwright",    emoji:"🔧"},
-  {name:"Brook",             role:"Musician",      emoji:"🎸"},
-  {name:"Jinbe",             role:"Helmsman",      emoji:"🐟"},
+  {name:"Monkey D. Luffy",   role:"Captain",       img:"https://raw.githubusercontent.com/opalchantatravel-oss/one-piece-db/main/images/luffy.jpg.png"},
+  {name:"Roronoa Zoro",      role:"Swordsman",     img:"https://raw.githubusercontent.com/opalchantatravel-oss/one-piece-db/main/images/zoro.jpg.jpg"},
+  {name:"Nami",              role:"Navigator",     img:"https://raw.githubusercontent.com/opalchantatravel-oss/one-piece-db/main/images/nami.jpg.jpg"},
+  {name:"Usopp",             role:"Sniper",        img:"https://raw.githubusercontent.com/opalchantatravel-oss/one-piece-db/main/images/usopp.jpg.png"},
+  {name:"Sanji",             role:"Cook",          img:"https://raw.githubusercontent.com/opalchantatravel-oss/one-piece-db/main/images/sanji.jpg.jpg"},
+  {name:"Tony Tony Chopper", role:"Doctor",        img:"https://raw.githubusercontent.com/opalchantatravel-oss/one-piece-db/main/images/chopper.jpg.jpg"},
+  {name:"Nico Robin",        role:"Archaeologist", img:"https://raw.githubusercontent.com/opalchantatravel-oss/one-piece-db/main/images/robin.jpg.png"},
+  {name:"Franky",            role:"Shipwright",    img:"https://raw.githubusercontent.com/opalchantatravel-oss/one-piece-db/main/images/franky.jpg.jpg"},
+  {name:"Brook",             role:"Musician",      img:"https://raw.githubusercontent.com/opalchantatravel-oss/one-piece-db/main/images/brook.jpg.png"},
+  {name:"Jinbe",             role:"Helmsman",      img:"https://raw.githubusercontent.com/opalchantatravel-oss/one-piece-db/main/images/jinbe.jpg.png"},
 ];
 
 function renderStrawHats(){
@@ -490,7 +490,7 @@ function renderStrawHats(){
         const d=m.data;
         const df=d&&fruitMap[d.devil_fruit_id];
         return `<div class="sh-card" onclick="${d?`openModal(${JSON.stringify(d).replace(/"/g,'&quot;')})`:'void(0)'}">
-          <div class="sh-avatar">${m.emoji}</div>
+          <div class="sh-avatar"><img src="${m.img}" style="width:100%;height:100%;object-fit:cover;object-position:top;" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'" loading="lazy"><div style="display:none;width:100%;height:100%;align-items:center;justify-content:center;font-size:48px;">☠</div></div>
           <div class="sh-body">
             <div class="sh-name">${m.name}</div>
             <div class="sh-role">${m.role}</div>
