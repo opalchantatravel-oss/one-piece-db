@@ -270,7 +270,7 @@ let charPage=1, fruitPage=1, curLayout='grid';
 const PER=24;
 
 async function api(path){
-  const r=await fetch(URL+path,{headers:{apikey:KEY,Authorization:"Bearer "+KEY}});
+  const r=await fetch(URL+path,{headers:{apikey:KEY,Authorization:"Bearer "+KEY,"Range":"0-2000"}});
   return r.json();
 }
 
