@@ -124,7 +124,22 @@ tbody tr:hover td{background:rgba(212,175,95,.03);}
 .bar-track{flex:1;background:rgba(255,255,255,.04);border-radius:2px;height:20px;overflow:hidden;}
 .bar-fill{height:100%;border-radius:2px;display:flex;align-items:center;padding-left:8px;font-size:11px;font-family:'Cinzel',serif;color:rgba(0,0,0,.65);transition:width .8s ease;}
 
-.loading{text-align:center;padding:3rem;color:var(--text-dim);font-style:italic;}
+/* Straw Hats */
+.sh-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:16px;margin-top:1rem;}
+.sh-card{background:var(--surface2);border:1px solid var(--border);border-radius:8px;overflow:hidden;cursor:pointer;transition:all .2s;}
+.sh-card:hover{border-color:var(--gold-dim);transform:translateY(-2px);}
+.sh-avatar{width:100%;aspect-ratio:1/1;display:flex;align-items:center;justify-content:center;font-size:56px;background:var(--surface3);}
+.sh-body{padding:14px 16px;}
+.sh-name{font-family:'Cinzel',serif;font-size:15px;font-weight:600;color:var(--gold);margin-bottom:4px;}
+.sh-role{font-size:13px;color:var(--text-dim);font-style:italic;margin-bottom:10px;}
+.sh-stats{display:grid;grid-template-columns:1fr 1fr;gap:6px;}
+.sh-stat{background:var(--surface3);border-radius:4px;padding:6px 8px;}
+.sh-stat-lbl{font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:2px;}
+.sh-stat-val{font-size:13px;color:var(--text);font-weight:500;}
+.sh-header{margin-bottom:1.5rem;padding-bottom:1rem;border-bottom:1px solid var(--border);}
+.sh-header h2{font-family:'Cinzel',serif;font-size:18px;color:var(--gold);margin-bottom:4px;}
+.sh-header p{font-size:14px;color:var(--text-dim);}
+
 
 @media(max-width:600px){
   .header,.metrics-bar,.nav-bar,.main{padding-left:1rem;padding-right:1rem;}
@@ -157,6 +172,7 @@ tbody tr:hover td{background:rgba(212,175,95,.03);}
   <div class="nav-inner">
     <div class="nav-tabs">
       <button class="nav-tab active" onclick="showTab('characters',this)">Characters</button>
+      <button class="nav-tab" onclick="showTab('strawhats',this)">🏴‍☠️ Straw Hats</button>
       <button class="nav-tab" onclick="showTab('fruits',this)">Devil Fruits</button>
       <button class="nav-tab" onclick="showTab('arcs',this)">Story Arcs</button>
       <button class="nav-tab" onclick="showTab('stats',this)">Statistics</button>
@@ -182,6 +198,10 @@ tbody tr:hover td{background:rgba(212,175,95,.03);}
     </div>
     <div id="char-content"><div class="loading">กำลังโหลด...</div></div>
     <div class="pagination" id="char-pages"></div>
+  </div>
+
+  <div id="sec-strawhats" class="section">
+    <div id="sh-content"><div class="loading">กำลังโหลด...</div></div>
   </div>
 
   <div id="sec-fruits" class="section">
@@ -433,6 +453,64 @@ function renderStats(){
     `<div class="bar-row"><div class="bar-lbl" style="font-size:11px">${s}</div><div class="bar-track"><div class="bar-fill" style="width:${Math.round(c/msa*100)}%;background:#1D9E75">${c}</div></div></div>`).join("");
 }
 
+const STRAW_HATS = [
+  {name:"Monkey D. Luffy",   role:"Captain",       emoji:"👒"},
+  {name:"Roronoa Zoro",      role:"Swordsman",     emoji:"⚔️"},
+  {name:"Nami",              role:"Navigator",     emoji:"🗺️"},
+  {name:"Usopp",             role:"Sniper",        emoji:"🎯"},
+  {name:"Sanji",             role:"Cook",          emoji:"🍳"},
+  {name:"Tony Tony Chopper", role:"Doctor",        emoji:"🦌"},
+  {name:"Nico Robin",        role:"Archaeologist", emoji:"📖"},
+  {name:"Franky",            role:"Shipwright",    emoji:"🔧"},
+  {name:"Brook",             role:"Musician",      emoji:"🎸"},
+  {name:"Jinbe",             role:"Helmsman",      emoji:"🐟"},
+];
+
+function renderStrawHats(){
+  const el=document.getElementById("sh-content");
+  const members=STRAW_HATS.map(sh=>{
+    const found=allChars.find(c=>c.name.toLowerCase()===sh.name.toLowerCase());
+    return {...sh, data: found||null};
+  });
+
+  el.innerHTML=`
+    <div class="sh-header">
+      <h2>☠ Straw Hat Pirates</h2>
+      <p>สมาชิกทั้ง ${members.length} คนของ Monkey D. Luffy</p>
+    </div>
+    <div class="sh-grid">
+      ${members.map(m=>{
+        const d=m.data;
+        const df=d&&fruitMap[d.devil_fruit_id];
+        return `<div class="sh-card" onclick="${d?`openModal(${JSON.stringify(d).replace(/"/g,'&quot;')})`:'void(0)'}">
+          <div class="sh-avatar">${m.emoji}</div>
+          <div class="sh-body">
+            <div class="sh-name">${m.name}</div>
+            <div class="sh-role">${m.role}</div>
+            <div class="sh-stats">
+              <div class="sh-stat">
+                <div class="sh-stat-lbl">Bounty</div>
+                <div class="sh-stat-val">${d?.bounty?'฿'+Number(d.bounty).toLocaleString():"—"}</div>
+              </div>
+              <div class="sh-stat">
+                <div class="sh-stat-lbl">Status</div>
+                <div class="sh-stat-val">${d?.status||"—"}</div>
+              </div>
+              <div class="sh-stat">
+                <div class="sh-stat-lbl">Devil Fruit</div>
+                <div class="sh-stat-val">${df?df.name:"None"}</div>
+              </div>
+              <div class="sh-stat">
+                <div class="sh-stat-lbl">Origin</div>
+                <div class="sh-stat-val">${d?.origin||"—"}</div>
+              </div>
+            </div>
+          </div>
+        </div>`;
+      }).join('')}
+    </div>`;
+}
+
 function renderPg(id,total,cur,cb){
   const el=document.getElementById(id);
   if(total<=1){el.innerHTML="";return;}
@@ -447,6 +525,7 @@ function showTab(name,btn){
   document.getElementById("sec-"+name).classList.add("active");
   btn.classList.add("active");
   document.getElementById("layout-btns").style.display=name==="characters"?"flex":"none";
+  if(name==="strawhats") renderStrawHats();
 }
 
 function setLayout(layout,btn){
