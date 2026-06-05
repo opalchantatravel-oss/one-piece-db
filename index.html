@@ -124,7 +124,31 @@ tbody tr:hover td{background:rgba(212,175,95,.03);}
 .bar-track{flex:1;background:rgba(255,255,255,.04);border-radius:2px;height:20px;overflow:hidden;}
 .bar-fill{height:100%;border-radius:2px;display:flex;align-items:center;padding-left:8px;font-size:11px;font-family:'Cinzel',serif;color:rgba(0,0,0,.65);transition:width .8s ease;}
 
-/* Bounty Leaderboard */
+/* Timeline */
+.tl-section{margin-bottom:3rem;}
+.tl-section-title{font-family:'Cinzel',serif;font-size:16px;font-weight:600;color:var(--gold);letter-spacing:.08em;text-transform:uppercase;margin-bottom:1.5rem;padding-bottom:.8rem;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;}
+.tl-wrap{position:relative;padding-left:30px;}
+.tl-wrap::before{content:'';position:absolute;left:8px;top:0;bottom:0;width:1px;background:linear-gradient(180deg,var(--gold-dim),transparent);}
+.tl-item{position:relative;margin-bottom:1.5rem;}
+.tl-dot{position:absolute;left:-26px;top:4px;width:12px;height:12px;border-radius:50%;border:2px solid var(--gold);background:var(--bg);flex-shrink:0;z-index:1;}
+.tl-dot.major{background:var(--gold);width:14px;height:14px;left:-27px;top:3px;}
+.tl-card{background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:12px 16px;transition:border .2s;}
+.tl-card:hover{border-color:var(--gold-dim);}
+.tl-era{font-size:11px;font-family:'Cinzel',serif;letter-spacing:.1em;color:var(--gold-dim);text-transform:uppercase;margin-bottom:4px;}
+.tl-title{font-size:15px;font-weight:600;color:var(--text);margin-bottom:4px;}
+.tl-desc{font-size:13px;color:var(--text-dim);line-height:1.6;}
+.tl-tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;}
+.tl-tag{font-size:11px;font-family:'Cinzel',serif;padding:2px 8px;border-radius:2px;background:rgba(212,175,95,.08);color:var(--gold-dim);border:1px solid var(--border);}
+.tl-divider{display:flex;align-items:center;gap:12px;margin:2rem 0;color:var(--text-muted);font-size:12px;font-family:'Cinzel',serif;letter-spacing:.1em;}
+.tl-divider::before,.tl-divider::after{content:'';flex:1;height:1px;background:var(--border);}
+.tl-arc-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px;}
+.tl-arc-card{background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:12px 14px;transition:border .2s;}
+.tl-arc-card:hover{border-color:var(--gold-dim);}
+.tl-arc-num{font-size:11px;color:var(--text-muted);font-family:'Cinzel',serif;margin-bottom:4px;}
+.tl-arc-name{font-size:14px;font-weight:600;color:var(--text);margin-bottom:4px;}
+.tl-arc-saga{font-size:12px;color:var(--gold-dim);}
+.tl-arc-info{font-size:12px;color:var(--text-muted);margin-top:4px;}
+
 .bounty-header{margin-bottom:1.5rem;padding-bottom:1rem;border-bottom:1px solid var(--border);}
 .bounty-header h2{font-family:'Cinzel',serif;font-size:18px;color:var(--gold);margin-bottom:4px;}
 .bounty-header p{font-size:14px;color:var(--text-dim);}
@@ -192,6 +216,7 @@ tbody tr:hover td{background:rgba(212,175,95,.03);}
       <button class="nav-tab active" onclick="showTab('characters',this)">Characters</button>
       <button class="nav-tab" onclick="showTab('strawhats',this)">🏴‍☠️ Straw Hats</button>
       <button class="nav-tab" onclick="showTab('bounty',this)">💰 Bounty</button>
+      <button class="nav-tab" onclick="showTab('timeline',this)">📜 Timeline</button>
       <button class="nav-tab" onclick="showTab('fruits',this)">Devil Fruits</button>
       <button class="nav-tab" onclick="showTab('arcs',this)">Story Arcs</button>
       <button class="nav-tab" onclick="showTab('stats',this)">Statistics</button>
@@ -225,6 +250,10 @@ tbody tr:hover td{background:rgba(212,175,95,.03);}
 
   <div id="sec-bounty" class="section">
     <div id="bounty-content"><div class="loading">กำลังโหลด...</div></div>
+  </div>
+
+  <div id="sec-timeline" class="section">
+    <div id="timeline-content"><div class="loading">กำลังโหลด...</div></div>
   </div>
 
   <div id="sec-fruits" class="section">
@@ -483,7 +512,85 @@ function renderStats(){
     `<div class="bar-row"><div class="bar-lbl" style="font-size:11px">${s}</div><div class="bar-track"><div class="bar-fill" style="width:${Math.round(c/msa*100)}%;background:#1D9E75">${c}</div></div></div>`).join("");
 }
 
-function renderBounty(){
+function renderTimeline(){
+  const el=document.getElementById("timeline-content");
+
+  const WORLD_HISTORY=[
+    {era:"~800+ Years Ago",title:"Void Century Begins",desc:"The Ancient Kingdom falls. The World Government is established by 20 kingdoms. All records of this era are erased — the Poneglyphs are created to preserve the truth.",tags:["Void Century","Ancient Kingdom","World Government","Poneglyphs"],major:true},
+    {era:"~800 Years Ago",title:"Joy Boy's Promise",desc:"Joy Boy makes a promise to the people of Fish-Man Island but fails to keep it. He leaves behind an apology on the Rio Poneglyph.",tags:["Joy Boy","Fish-Man Island","Rio Poneglyph"],major:false},
+    {era:"~800 Years Ago",title:"The Ancient Weapons",desc:"Pluton, Poseidon, and Uranus — three weapons of mass destruction — are hidden across the world to prevent misuse.",tags:["Pluton","Poseidon","Uranus","Ancient Weapons"],major:false},
+    {era:"~100 Years Ago",title:"Rocks Pirates Era",desc:"Rocks D. Xebec forms the most fearsome pirate crew in history, including young Whitebeard, Big Mom, and Kaido. Defeated by Garp and Roger at God Valley.",tags:["Rocks D. Xebec","God Valley","Whitebeard","Big Mom","Kaido","Garp"],major:true},
+    {era:"~40–26 Years Ago",title:"Roger Pirates Era",desc:"Gol D. Roger and his crew become the first to sail the Grand Line and reach Laugh Tale. Roger discovers the truth of the Void Century and the One Piece.",tags:["Gol D. Roger","Roger Pirates","Laugh Tale","Grand Line","Rayleigh"],major:true},
+    {era:"~26 Years Ago",title:"Roger's Execution",desc:"Gol D. Roger turns himself in and is executed in Loguetown. His final words ignite the Great Pirate Era: \"My treasure? It's yours if you want it. Find it! I left everything I gathered together in one place!\"",tags:["Loguetown","Great Pirate Era","Execution"],major:true},
+    {era:"~24 Years Ago",title:"Ohara Incident",desc:"The World Government launches Buster Call on Ohara after scholars begin deciphering the Poneglyphs. Nico Robin is the sole survivor.",tags:["Ohara","Buster Call","Nico Robin","Clover","Poneglyph"],major:false},
+    {era:"~22 Years Ago",title:"Whitebeard Era Peaks",desc:"Edward Newgate (Whitebeard) becomes the strongest man in the world, commanding a vast fleet and protecting towns across the seas.",tags:["Whitebeard","Yonko","Strongest Man"],major:false},
+    {era:"~10 Years Ago",title:"Shanks & Luffy Meet",desc:"Red-Haired Shanks arrives in Foosha Village. He gives Luffy his straw hat and inspires him to become a pirate. Shanks loses his arm saving Luffy.",tags:["Shanks","Luffy","Foosha Village","Straw Hat"],major:true},
+    {era:"~6 Years Ago",title:"Marineford War",desc:"Whitebeard declares war on the World Government to save Ace. Ace and Whitebeard are killed. The balance of power shifts dramatically.",tags:["Marineford","Ace","Whitebeard","Blackbeard","Sengoku"],major:true},
+    {era:"~2 Years Ago",title:"Straw Hats' Reunion (Post-Timeskip)",desc:"After 2 years of training, the Straw Hat Pirates reunite at Sabaody Archipelago. Each member has grown dramatically in strength.",tags:["Timeskip","Straw Hats","Sabaody"],major:true},
+    {era:"Present",title:"The Final War Approaches",desc:"Luffy defeats Kaido in Wano, becoming a Yonko. The world moves toward the Final War between the World Government and those who seek freedom.",tags:["Wano","Yonko","Luffy","Final War","Im"],major:true},
+  ];
+
+  // Group arcs by saga
+  const sagaGroups={};
+  allArcs.forEach(a=>{
+    if(!sagaGroups[a.saga]) sagaGroups[a.saga]=[];
+    sagaGroups[a.saga].push(a);
+  });
+
+  const sagaColors={
+    "East Blue":"#2980b9","Alabasta":"#d4af5f","Sky Island":"#27ae60",
+    "Water 7":"#8e44ad","Thriller Bark":"#c0392b","Summit War":"#e67e22",
+    "Fish-Man Island":"#16a085","Punk Hazard":"#7f8c8d","Dressrosa":"#e74c3c",
+    "Yonko":"#9b59b6","Wano":"#c0392b","Final":"#d4af5f","Other":"#555",
+  };
+
+  el.innerHTML=`
+    <div>
+      <!-- Part 1: World History -->
+      <div class="tl-section">
+        <div class="tl-section-title">⚔️ ส่วนที่ 1 — World History Timeline</div>
+        <div class="tl-wrap">
+          ${WORLD_HISTORY.map(e=>`
+            <div class="tl-item">
+              <div class="tl-dot ${e.major?'major':''}"></div>
+              <div class="tl-card">
+                <div class="tl-era">${e.era}</div>
+                <div class="tl-title">${e.title}</div>
+                <div class="tl-desc">${e.desc}</div>
+                <div class="tl-tags">${e.tags.map(t=>`<span class="tl-tag">${t}</span>`).join('')}</div>
+              </div>
+            </div>`).join('')}
+        </div>
+      </div>
+
+      <div class="tl-divider">☠ STORY ARC TIMELINE ☠</div>
+
+      <!-- Part 2: Story Arc Timeline -->
+      <div class="tl-section">
+        <div class="tl-section-title">📖 ส่วนที่ 2 — Story Arc Timeline</div>
+        ${Object.entries(sagaGroups).map(([saga,arcs])=>`
+          <div style="margin-bottom:1.5rem;">
+            <div style="font-family:'Cinzel',serif;font-size:12px;letter-spacing:.1em;color:${sagaColors[saga]||'#888'};text-transform:uppercase;margin-bottom:.8rem;display:flex;align-items:center;gap:8px;">
+              <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:${sagaColors[saga]||'#888'}"></span>
+              ${saga} Saga
+            </div>
+            <div class="tl-arc-grid">
+              ${arcs.map(a=>`
+                <div class="tl-arc-card">
+                  <div class="tl-arc-num">Arc #${a.arc_number}</div>
+                  <div class="tl-arc-name">${a.name}</div>
+                  <div class="tl-arc-saga" style="color:${sagaColors[saga]||'#888'}">${saga}</div>
+                  <div class="tl-arc-info">
+                    ${a.chapters_start?`Ch.${a.chapters_start}`:''}
+                    ${a.episodes_start?` · Ep.${a.episodes_start}`:''}
+                  </div>
+                </div>`).join('')}
+            </div>
+          </div>`).join('')}
+      </div>
+    </div>`;
+}
+
   const el=document.getElementById("bounty-content");
   const withBounty=allChars
     .filter(c=>c.bounty&&c.bounty>0)
@@ -595,6 +702,7 @@ function showTab(name,btn){
   document.getElementById("layout-btns").style.display=name==="characters"?"flex":"none";
   if(name==="strawhats") renderStrawHats();
   if(name==="bounty") renderBounty();
+  if(name==="timeline") renderTimeline();
 }
 
 function setLayout(layout,btn){
