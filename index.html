@@ -591,6 +591,7 @@ function renderTimeline(){
     </div>`;
 }
 
+function renderBounty(){
   const el=document.getElementById("bounty-content");
   const withBounty=allChars
     .filter(c=>c.bounty&&c.bounty>0)
