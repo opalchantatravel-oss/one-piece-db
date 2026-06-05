@@ -124,7 +124,25 @@ tbody tr:hover td{background:rgba(212,175,95,.03);}
 .bar-track{flex:1;background:rgba(255,255,255,.04);border-radius:2px;height:20px;overflow:hidden;}
 .bar-fill{height:100%;border-radius:2px;display:flex;align-items:center;padding-left:8px;font-size:11px;font-family:'Cinzel',serif;color:rgba(0,0,0,.65);transition:width .8s ease;}
 
-/* Timeline */
+/* Factions */
+.faction-type-tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:1.2rem;}
+.faction-type-btn{padding:5px 14px;font-size:12px;font-family:'Cinzel',serif;letter-spacing:.04em;border:1px solid var(--border);border-radius:3px;background:transparent;color:var(--text-dim);cursor:pointer;transition:all .2s;}
+.faction-type-btn:hover{border-color:var(--gold-dim);color:var(--gold);}
+.faction-type-btn.active{background:rgba(212,175,95,.1);border-color:var(--gold-dim);color:var(--gold);}
+.factions-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px;}
+.faction-card{background:var(--surface2);border:1px solid var(--border);border-radius:6px;overflow:hidden;transition:border .2s;cursor:pointer;}
+.faction-card:hover{border-color:var(--gold-dim);}
+.faction-card-header{padding:14px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;}
+.faction-type-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+.faction-name{font-size:15px;font-weight:600;color:var(--text);flex:1;}
+.faction-type-badge{font-size:11px;font-family:'Cinzel',serif;padding:2px 8px;border-radius:2px;background:rgba(212,175,95,.08);color:var(--gold-dim);border:1px solid var(--border);}
+.faction-members{padding:12px 16px;}
+.faction-member-title{font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px;font-family:'Cinzel',serif;}
+.faction-member-list{display:flex;flex-wrap:wrap;gap:6px;}
+.faction-member-tag{font-size:12px;color:var(--text-dim);background:var(--surface3);padding:3px 8px;border-radius:3px;cursor:pointer;transition:all .2s;}
+.faction-member-tag:hover{color:var(--gold);background:rgba(212,175,95,.08);}
+.faction-empty{font-size:13px;color:var(--text-muted);font-style:italic;}
+
 .tl-section{margin-bottom:3rem;}
 .tl-section-title{font-family:'Cinzel',serif;font-size:16px;font-weight:600;color:var(--gold);letter-spacing:.08em;text-transform:uppercase;margin-bottom:1.5rem;padding-bottom:.8rem;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;}
 .tl-wrap{position:relative;padding-left:30px;}
@@ -217,6 +235,7 @@ tbody tr:hover td{background:rgba(212,175,95,.03);}
       <button class="nav-tab" onclick="showTab('strawhats',this)">🏴‍☠️ Straw Hats</button>
       <button class="nav-tab" onclick="showTab('bounty',this)">💰 Bounty</button>
       <button class="nav-tab" onclick="showTab('timeline',this)">📜 Timeline</button>
+      <button class="nav-tab" onclick="showTab('factions',this)">⚔️ Factions</button>
       <button class="nav-tab" onclick="showTab('fruits',this)">Devil Fruits</button>
       <button class="nav-tab" onclick="showTab('arcs',this)">Story Arcs</button>
       <button class="nav-tab" onclick="showTab('stats',this)">Statistics</button>
@@ -246,6 +265,10 @@ tbody tr:hover td{background:rgba(212,175,95,.03);}
 
   <div id="sec-strawhats" class="section">
     <div id="sh-content"><div class="loading">กำลังโหลด...</div></div>
+  </div>
+
+  <div id="sec-factions" class="section">
+    <div id="factions-content"><div class="loading">กำลังโหลด...</div></div>
   </div>
 
   <div id="sec-bounty" class="section">
@@ -512,6 +535,99 @@ function renderStats(){
     `<div class="bar-row"><div class="bar-lbl" style="font-size:11px">${s}</div><div class="bar-track"><div class="bar-fill" style="width:${Math.round(c/msa*100)}%;background:#1D9E75">${c}</div></div></div>`).join("");
 }
 
+// Known major factions to highlight
+const MAJOR_FACTIONS = [
+  "Straw Hat Pirates","Beasts Pirates","Big Mom Pirates","Blackbeard Pirates",
+  "Red Hair Pirates","Marine","Revolutionary Army","Whitebeard Pirates",
+  "Roger Pirates","Rocks Pirates","Donquixote Pirates","Baroque Works",
+  "Arlong Pirates","Buggy Pirates","Alvida Pirates","Bellamy Pirates",
+  "New Fish-Man Pirates","Beautiful Pirates","Barto Club","Tontatta Pirates",
+  "Seven Warlords of the Sea","Four Emperors","SWORD",
+];
+
+let curFactionType = "all";
+
+function renderFactions(){
+  const el = document.getElementById("factions-content");
+
+  const typeColors = {
+    pirate_crew:"#d4af5f", marine:"#2980b9", revolutionary:"#27ae60",
+    yonko_crew:"#9b59b6", warlord:"#e67e22", cipher_pol:"#7f8c8d",
+    celestial_dragon:"#c0392b", other:"#555"
+  };
+
+  const typeLabels = {
+    pirate_crew:"Pirate Crew", marine:"Marine", revolutionary:"Revolutionary",
+    yonko_crew:"Yonko Crew", warlord:"Warlord", cipher_pol:"Cipher Pol",
+    celestial_dragon:"Celestial Dragon", other:"Other"
+  };
+
+  // Build faction → members map
+  const factionMembers = {};
+  allChars.forEach(c => {
+    if(!c.faction_id) return;
+    const fn = factionMap[c.faction_id]?.name;
+    if(!fn) return;
+    if(!factionMembers[fn]) factionMembers[fn] = [];
+    factionMembers[fn].push(c);
+  });
+
+  // Filter factions: show major ones + ones with members
+  const factions = Object.values(factionMap).filter(f => {
+    const isMajor = MAJOR_FACTIONS.includes(f.name);
+    const hasMembers = (factionMembers[f.name]||[]).length > 0;
+    const typeMatch = curFactionType === "all" || f.type === curFactionType;
+    return (isMajor || hasMembers) && typeMatch;
+  }).sort((a,b) => {
+    const ma = MAJOR_FACTIONS.includes(a.name) ? 0 : 1;
+    const mb = MAJOR_FACTIONS.includes(b.name) ? 0 : 1;
+    if(ma !== mb) return ma - mb;
+    return (factionMembers[b.name]||[]).length - (factionMembers[a.name]||[]).length;
+  });
+
+  const types = ["all","pirate_crew","yonko_crew","marine","revolutionary","warlord","cipher_pol","other"];
+
+  el.innerHTML = `
+    <div style="margin-bottom:1.2rem;">
+      <div style="font-family:'Cinzel',serif;font-size:18px;color:var(--gold);margin-bottom:4px;">⚔️ Factions</div>
+      <div style="font-size:14px;color:var(--text-dim);">กลุ่มและองค์กรในโลก One Piece — ${factions.length} กลุ่ม</div>
+    </div>
+    <div class="faction-type-tabs">
+      ${types.map(t=>`<button class="faction-type-btn ${curFactionType===t?'active':''}" onclick="setFactionType('${t}',this)">${t==='all'?'ทั้งหมด':typeLabels[t]||t}</button>`).join('')}
+    </div>
+    <div class="factions-grid">
+      ${factions.map(f => {
+        const members = (factionMembers[f.name]||[]);
+        const color = typeColors[f.type]||'#555';
+        const label = typeLabels[f.type]||f.type;
+        const topMembers = members.slice(0,8);
+        return `<div class="faction-card">
+          <div class="faction-card-header">
+            <div class="faction-type-dot" style="background:${color}"></div>
+            <div class="faction-name">${f.name}</div>
+            <div class="faction-type-badge">${label}</div>
+          </div>
+          <div class="faction-members">
+            <div class="faction-member-title">สมาชิก (${members.length} คน)</div>
+            <div class="faction-member-list">
+              ${topMembers.length
+                ? topMembers.map(m=>`<span class="faction-member-tag" onclick="openModal(${JSON.stringify(m).replace(/"/g,'&quot;')})">${m.name}</span>`).join('')
+                  + (members.length > 8 ? `<span style="font-size:12px;color:var(--text-muted);padding:3px 4px">+${members.length-8} more</span>` : '')
+                : `<span class="faction-empty">ไม่มีข้อมูลสมาชิก</span>`}
+            </div>
+          </div>
+        </div>`;
+      }).join('')}
+    </div>`;
+}
+
+function setFactionType(type, btn){
+  curFactionType = type;
+  document.querySelectorAll(".faction-type-btn").forEach(b=>b.classList.remove("active"));
+  btn.classList.add("active");
+  renderFactions();
+}
+
 function renderTimeline(){
   const el=document.getElementById("timeline-content");
 
@@ -704,6 +820,7 @@ function showTab(name,btn){
   if(name==="strawhats") renderStrawHats();
   if(name==="bounty") renderBounty();
   if(name==="timeline") renderTimeline();
+  if(name==="factions") renderFactions();
 }
 
 function setLayout(layout,btn){
