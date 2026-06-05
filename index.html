@@ -124,7 +124,25 @@ tbody tr:hover td{background:rgba(212,175,95,.03);}
 .bar-track{flex:1;background:rgba(255,255,255,.04);border-radius:2px;height:20px;overflow:hidden;}
 .bar-fill{height:100%;border-radius:2px;display:flex;align-items:center;padding-left:8px;font-size:11px;font-family:'Cinzel',serif;color:rgba(0,0,0,.65);transition:width .8s ease;}
 
-/* Straw Hats */
+/* Bounty Leaderboard */
+.bounty-header{margin-bottom:1.5rem;padding-bottom:1rem;border-bottom:1px solid var(--border);}
+.bounty-header h2{font-family:'Cinzel',serif;font-size:18px;color:var(--gold);margin-bottom:4px;}
+.bounty-header p{font-size:14px;color:var(--text-dim);}
+.bounty-list{display:flex;flex-direction:column;gap:10px;}
+.bounty-row{background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:12px 16px;display:flex;align-items:center;gap:14px;cursor:pointer;transition:all .2s;}
+.bounty-row:hover{border-color:var(--gold-dim);}
+.bounty-rank{font-family:'Cinzel',serif;font-size:18px;font-weight:700;width:36px;text-align:center;flex-shrink:0;}
+.rank-1{color:#FFD700;}
+.rank-2{color:#C0C0C0;}
+.rank-3{color:#CD7F32;}
+.rank-other{color:var(--text-muted);}
+.bounty-info{flex:1;min-width:0;}
+.bounty-name{font-size:15px;font-weight:600;color:var(--text);margin-bottom:4px;}
+.bounty-bar-wrap{flex:1;background:rgba(255,255,255,.04);border-radius:2px;height:6px;overflow:hidden;margin-top:6px;}
+.bounty-bar{height:100%;border-radius:2px;background:linear-gradient(90deg,var(--gold-dim),var(--gold));transition:width .8s ease;}
+.bounty-amt{font-family:'Cinzel',serif;font-size:14px;font-weight:600;color:var(--gold);white-space:nowrap;flex-shrink:0;}
+.bounty-filters{display:flex;gap:10px;margin-bottom:1.2rem;flex-wrap:wrap;}
+
 .sh-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:16px;margin-top:1rem;}
 .sh-card{background:var(--surface2);border:1px solid var(--border);border-radius:8px;overflow:hidden;cursor:pointer;transition:all .2s;}
 .sh-card:hover{border-color:var(--gold-dim);transform:translateY(-2px);}
@@ -173,6 +191,7 @@ tbody tr:hover td{background:rgba(212,175,95,.03);}
     <div class="nav-tabs">
       <button class="nav-tab active" onclick="showTab('characters',this)">Characters</button>
       <button class="nav-tab" onclick="showTab('strawhats',this)">🏴‍☠️ Straw Hats</button>
+      <button class="nav-tab" onclick="showTab('bounty',this)">💰 Bounty</button>
       <button class="nav-tab" onclick="showTab('fruits',this)">Devil Fruits</button>
       <button class="nav-tab" onclick="showTab('arcs',this)">Story Arcs</button>
       <button class="nav-tab" onclick="showTab('stats',this)">Statistics</button>
@@ -202,6 +221,10 @@ tbody tr:hover td{background:rgba(212,175,95,.03);}
 
   <div id="sec-strawhats" class="section">
     <div id="sh-content"><div class="loading">กำลังโหลด...</div></div>
+  </div>
+
+  <div id="sec-bounty" class="section">
+    <div id="bounty-content"><div class="loading">กำลังโหลด...</div></div>
   </div>
 
   <div id="sec-fruits" class="section">
@@ -460,7 +483,43 @@ function renderStats(){
     `<div class="bar-row"><div class="bar-lbl" style="font-size:11px">${s}</div><div class="bar-track"><div class="bar-fill" style="width:${Math.round(c/msa*100)}%;background:#1D9E75">${c}</div></div></div>`).join("");
 }
 
-const STRAW_HATS = [
+function renderBounty(){
+  const el=document.getElementById("bounty-content");
+  const withBounty=allChars
+    .filter(c=>c.bounty&&c.bounty>0)
+    .sort((a,b)=>b.bounty-a.bounty)
+    .slice(0,50);
+
+  if(!withBounty.length){
+    el.innerHTML='<div class="loading">ไม่มีข้อมูล bounty ครับ</div>';
+    return;
+  }
+
+  const maxBounty=withBounty[0].bounty;
+
+  el.innerHTML=`
+    <div class="bounty-header">
+      <h2>💰 Bounty Leaderboard</h2>
+      <p>Top ${withBounty.length} ตัวละครที่มีค่าหัวสูงสุด</p>
+    </div>
+    <div class="bounty-list">
+      ${withBounty.map((c,i)=>{
+        const rank=i+1;
+        const rankClass=rank===1?'rank-1':rank===2?'rank-2':rank===3?'rank-3':'rank-other';
+        const rankLabel=rank===1?'🥇':rank===2?'🥈':rank===3?'🥉':rank;
+        const df=fruitMap[c.devil_fruit_id];
+        const pct=Math.round(c.bounty/maxBounty*100);
+        return `<div class="bounty-row" onclick="openModal(${JSON.stringify(c).replace(/"/g,'&quot;')})">
+          <div class="bounty-rank ${rankClass}">${rankLabel}</div>
+          <div class="bounty-info">
+            <div class="bounty-name">${c.name}${df?` <span style="font-size:12px;color:var(--text-dim)">· ${df.name}</span>`:''}</div>
+            <div class="bounty-bar-wrap"><div class="bounty-bar" style="width:${pct}%"></div></div>
+          </div>
+          <div class="bounty-amt">฿${Number(c.bounty).toLocaleString()}</div>
+        </div>`;
+      }).join('')}
+    </div>`;
+}
   {name:"Monkey D. Luffy",   role:"Captain",       img:"https://raw.githubusercontent.com/opalchantatravel-oss/one-piece-db/main/images/luffy.jpg.png"},
   {name:"Roronoa Zoro",      role:"Swordsman",     img:"https://raw.githubusercontent.com/opalchantatravel-oss/one-piece-db/main/images/zoro.jpg.jpg"},
   {name:"Nami",              role:"Navigator",     img:"https://raw.githubusercontent.com/opalchantatravel-oss/one-piece-db/main/images/nami.jpg.jpg"},
@@ -533,6 +592,7 @@ function showTab(name,btn){
   btn.classList.add("active");
   document.getElementById("layout-btns").style.display=name==="characters"?"flex":"none";
   if(name==="strawhats") renderStrawHats();
+  if(name==="bounty") renderBounty();
 }
 
 function setLayout(layout,btn){
