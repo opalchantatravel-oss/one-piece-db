@@ -461,6 +461,7 @@ function openModal(c){
   const aliases=Array.isArray(c.alias)&&c.alias.length?c.alias.join(', '):"—";
   const haki=Array.isArray(c.haki_types)&&c.haki_types.length?c.haki_types.join(', '):"—";
 
+  // แสดง modal ก่อน แล้วค่อย fetch faction history
   document.getElementById('modal-content').innerHTML=`
     <div class="modal-header">
       ${imgEl(c.name,'modal-img','modal-img-placeholder')}
@@ -482,10 +483,41 @@ function openModal(c){
       <div class="modal-row"><div class="modal-key">Blood Type</div><div class="modal-val">${c.blood_type||"—"}</div></div>
       <div class="modal-row"><div class="modal-key">Haki</div><div class="modal-val">${haki}</div></div>
       <div class="modal-row"><div class="modal-key">Aliases</div><div class="modal-val">${aliases}</div></div>
+      <div class="modal-row" id="faction-history-row">
+        <div class="modal-key">Faction History</div>
+        <div class="modal-val" id="faction-history-val"><span style="color:var(--text-muted);font-size:13px">กำลังโหลด...</span></div>
+      </div>
     </div>`;
 
   document.getElementById('modal-overlay').classList.add('open');
   document.body.style.overflow='hidden';
+
+  // Fetch faction history
+  fetch(`${URL}/rest/v1/character_factions?character_id=eq.${c.id}&select=faction_id,is_current`, {
+    headers:{apikey:KEY,Authorization:"Bearer "+KEY}
+  })
+  .then(r=>r.json())
+  .then(data=>{
+    const el = document.getElementById('faction-history-val');
+    if(!el) return;
+    if(!data||!data.length){
+      el.innerHTML='<span style="color:var(--text-muted);font-size:13px">ไม่มีข้อมูล</span>';
+      return;
+    }
+    el.innerHTML=`<div style="display:flex;flex-wrap:wrap;gap:6px">
+      ${data.map(d=>{
+        const fname=factionMap[d.faction_id]?.name||d.faction_id;
+        const tag=d.is_current
+          ?`<span style="font-size:12px;background:rgba(212,175,95,.12);color:var(--gold);border:1px solid var(--border);padding:2px 8px;border-radius:2px">${fname} ★</span>`
+          :`<span style="font-size:12px;background:var(--surface3);color:var(--text-dim);padding:2px 8px;border-radius:2px">${fname}</span>`;
+        return tag;
+      }).join('')}
+    </div>`;
+  })
+  .catch(()=>{
+    const el=document.getElementById('faction-history-val');
+    if(el) el.innerHTML='<span style="color:var(--text-muted);font-size:13px">ไม่มีข้อมูล</span>';
+  });
 }
 
 function closeModal(e){if(e.target===document.getElementById('modal-overlay'))closeModalDirect();}
