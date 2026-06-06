@@ -455,6 +455,28 @@ function renderChars(){
   renderPg("char-pages",pages,charPage,p=>{charPage=p;renderChars();window.scrollTo(0,0);});
 }
 
+const SH_IMGS = {
+  "Monkey D. Luffy":   "luffy.jpg.png",
+  "Roronoa Zoro":      "zoro.jpg.jpg",
+  "Nami":              "nami.jpg.jpg",
+  "Usopp":             "usopp.jpg.png",
+  "Sanji":             "sanji.jpg.jpg",
+  "Tony Tony Chopper": "chopper.jpg.jpg",
+  "Nico Robin":        "robin.jpg.png",
+  "Franky":            "franky.jpg.jpg",
+  "Brook":             "brook.jpg.png",
+  "Jinbe":             "jinbe.jpg.png",
+};
+const GH_BASE = "https://raw.githubusercontent.com/opalchantatravel-oss/one-piece-db/main/images/";
+
+function modalImgEl(name){
+  const file = SH_IMGS[name];
+  if(file){
+    return `<img src="${GH_BASE}${file}" class="modal-img" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'" loading="lazy"><div class="modal-img-placeholder" style="display:none">☠</div>`;
+  }
+  return imgEl(name,'modal-img','modal-img-placeholder');
+}
+
 function openModal(c){
   const df=fruitMap[c.devil_fruit_id];
   const fn=factionMap[c.faction_id]?.name||"—";
@@ -464,7 +486,7 @@ function openModal(c){
   // แสดง modal ก่อน แล้วค่อย fetch faction history
   document.getElementById('modal-content').innerHTML=`
     <div class="modal-header">
-      ${imgEl(c.name,'modal-img','modal-img-placeholder')}
+      ${modalImgEl(c.name)}
       <div>
         <div class="modal-title">${c.name}</div>
         <div class="modal-subtitle">${aliases!=="—"?aliases:''}</div>
