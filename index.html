@@ -356,8 +356,8 @@ async function api(path){
 
 async function apiChars(){
   const [batch1, batch2]=await Promise.all([
-    fetch(URL+"/rest/v1/characters?select=id,name,status,origin,faction_id,devil_fruit_id,alias,haki_types,bounty,height,blood_type&limit=1000&offset=0",{headers:{apikey:KEY,Authorization:"Bearer "+KEY}}).then(r=>r.json()),
-    fetch(URL+"/rest/v1/characters?select=id,name,status,origin,faction_id,devil_fruit_id,alias,haki_types,bounty,height,blood_type&limit=1000&offset=1000",{headers:{apikey:KEY,Authorization:"Bearer "+KEY}}).then(r=>r.json()),
+    fetch(URL+"/rest/v1/characters?select=id,name,status,origin,faction_id,devil_fruit_id,alias,haki_types,bounty,height,blood_type,birthday&limit=1000&offset=0",{headers:{apikey:KEY,Authorization:"Bearer "+KEY}}).then(r=>r.json()),
+    fetch(URL+"/rest/v1/characters?select=id,name,status,origin,faction_id,devil_fruit_id,alias,haki_types,bounty,height,blood_type,birthday&limit=1000&offset=1000",{headers:{apikey:KEY,Authorization:"Bearer "+KEY}}).then(r=>r.json()),
   ]);
   return [...(Array.isArray(batch1)?batch1:[]), ...(Array.isArray(batch2)?batch2:[])];
 }
@@ -480,6 +480,7 @@ function openModal(c){
       <div class="modal-row"><div class="modal-key">Devil Fruit</div><div class="modal-val">${df?df.name+" ("+df.type+")":"—"}</div></div>
       <div class="modal-row"><div class="modal-key">Bounty</div><div class="modal-val">${c.bounty?'฿'+Number(c.bounty).toLocaleString():"—"}</div></div>
       <div class="modal-row"><div class="modal-key">Height</div><div class="modal-val">${c.height?c.height+' cm':"—"}</div></div>
+      <div class="modal-row"><div class="modal-key">Birthday</div><div class="modal-val">${c.birthday||"—"}</div></div>
       <div class="modal-row"><div class="modal-key">Blood Type</div><div class="modal-val">${c.blood_type||"—"}</div></div>
       <div class="modal-row"><div class="modal-key">Haki</div><div class="modal-val">${haki}</div></div>
       <div class="modal-row"><div class="modal-key">Aliases</div><div class="modal-val">${aliases}</div></div>
